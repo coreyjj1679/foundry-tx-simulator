@@ -16,7 +16,10 @@
 
 ```
 $ chmod 755 server.sh
-$ ./server.sh -f <endpoint> -a <impersonate_address> [-p <port>]
+$ export PORT=<port>
+$ export ENDPOINT=<endpoint>
+$ export IMP_ADDR=<addr>
+$ ./server.sh -f $ENDPOINT -a $IMP_ADDR [-p $PORT]
 ```
 
 ### example
@@ -27,13 +30,13 @@ $ ./server.sh -f https://eth.llamarpc.com -a <impersonate_address> -p 8080
 Start forking network using anvil...
 [anvil]
 fork-url: https://eth.llamarpc.com
-port: 8088
+port: 8080
 impersonate_account: <addr>
 Anvil is running with PID <pid>
 forked https://eth.llamarpc.com, listening on 127.0.0.1:8080 in background...
 
 [devtunnel]
-forwarded 127.0.0.1:8088 to https://<TUNNEL_ID>.asse.devtunnels.ms
+forwarded 127.0.0.1:8080 to https://<TUNNEL_ID>.asse.devtunnels.ms
 
 [anvil]
 impersonating account: <addr>

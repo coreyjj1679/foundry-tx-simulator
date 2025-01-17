@@ -10,12 +10,12 @@ while IFS= read -r line; do
     if [[ $line == alias* ]]; then
         alias_name=$(echo "$line" | cut -d'=' -f1 | awk '{print $2}')
         alias_value=$(echo "$line" | cut -d'=' -f2 | tr -d ' ')
-        
+
         # Store in arrays
         alias_names+=("$alias_name")
         alias_values+=("$alias_value")
-    elif [[ -n $line ]]; then 
-        IFS=',' read -r command address func_and_args <<< "$line"
+    elif [[ -n $line ]]; then
+        IFS=',' read -r command address func_and_args <<<"$line"
         if [[ " ${alias_names[@]} " =~ " ${address} " ]]; then
             # get acutal value
             for i in "${!alias_names[@]}"; do
@@ -25,14 +25,13 @@ while IFS= read -r line; do
                 fi
             done
         fi
-
         func=""
         args=""
         bracket_count=0
         found_comma=false
 
         # ensure it works for func(uint,uint). dun parse the comma between arg
-        for (( i=0; i<${#func_and_args}; i++ )); do
+        for ((i = 0; i < ${#func_and_args}; i++)); do
             char="${func_and_args:i:1}"
             if [[ "$char" == "(" ]]; then
                 ((bracket_count++))
@@ -41,7 +40,7 @@ while IFS= read -r line; do
             elif [[ "$char" == "," && $bracket_count -eq 0 && $found_comma == false ]]; then
                 found_comma=true
                 func="${func_and_args:0:i}"
-                args="${func_and_args:i+1}"   
+                args="${func_and_args:i+1}"
                 break
             fi
             if [[ $found_comma == false ]]; then
@@ -50,12 +49,14 @@ while IFS= read -r line; do
         done
 
         func=$(echo "$func" | sed 's/^ *//;s/ *$//')
-        args=$(echo "$args" | sed 's/^ *//;s/ *$//')
+        args=$(echo "$args" | sed 's/^ *//;s/ *$//;s/,/ /g')
 
         func="\"$func\""
 
-        command="cast call $address $func $args --rpc-url 127.0.0.1:8088"
-        echo -e "calling $command"
+        command="cast $command $address $func $args --rpc-url 127.0.0.1:$PORT --from $IMP_ADDR --unlocked"
+        echo -e "calling:"
+        echo -e "$command"
         eval "${command}"
+        sleep 2
     fi
-done < "$input_file"
+done <"$input_file"
